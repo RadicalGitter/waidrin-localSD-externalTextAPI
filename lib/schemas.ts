@@ -15,11 +15,27 @@ const Index = z.int();
 
 const RequestParams = z.record(z.string(), z.unknown());
 
-export const View = z.enum(["welcome", "connection", "genre", "character", "scenario", "chat"]);
+export const View = z.enum([
+  "welcome",
+  "connection",
+  "genre",
+  "character",
+  "world_questions",
+  "character_questions",
+  "scenario",
+  "chat",
+]);
 
 export const World = z.object({
   name: Name,
   description: Description,
+});
+
+export const WorldQuestions = z.object({
+  worldType: z.string().trim().max(200),
+  autoWorldType: z.boolean(),
+  suggestions: z.array(z.string().trim().max(200)),
+  selectedSuggestionIndex: z.int(),
 });
 
 export const Gender = z.enum(["male", "female"]);
@@ -32,6 +48,17 @@ export const Character = z.object({
   race: Race,
   biography: Description,
   locationIndex: Index,
+});
+
+export const CharacterQuestions = z.object({
+  age: z.string().trim().max(50),
+  autoAge: z.boolean(),
+  childhood: z.string().trim().max(1000),
+  autoChildhood: z.boolean(),
+  adolescence: z.string().trim().max(1000),
+  autoAdolescence: z.boolean(),
+  description: z.string().trim().max(1000),
+  autoDescription: z.boolean(),
 });
 
 export const LocationType = z.enum(["tavern", "market", "road"]);
@@ -90,6 +117,8 @@ export const State = z.object({
   logParams: z.boolean(),
   logResponses: z.boolean(),
   view: View,
+  worldQuestions: WorldQuestions,
+  characterQuestions: CharacterQuestions,
   world: World,
   locations: Location.array(),
   characters: Character.array(),

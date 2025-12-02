@@ -25,19 +25,45 @@ function makePrompt(userPrompt: string): Prompt {
   };
 }
 
-export const generateWorldPrompt = makePrompt(`
+export function generateWorldPrompt(state: State): Prompt {
+  const hints: string[] = [];
+
+  const worldType = state.worldQuestions.worldType.trim();
+  if (!state.worldQuestions.autoWorldType && worldType) {
+    hints.push(`World type: ${worldType}`);
+  }
+
+  return makePrompt(`
 Create a fictional world for a fantasy adventure RPG and return its name
 and a short description (100 words maximum) as a JSON object.
 Do not use a cliched name like 'Eldoria'.
 The world is populated by humans, elves, and dwarves.
+${hints.length > 0 ? `\nAdditional guidance:\n${hints.join("\n")}` : ""}
 `);
+}
 
 export function generateProtagonistPrompt(state: State): Prompt {
+  const hints: string[] = [];
+
+  const addHint = (label: string, value: string, auto: boolean) => {
+    const trimmed = value.trim();
+    if (!auto && trimmed) {
+      hints.push(`${label}: ${trimmed}`);
+    }
+  };
+
+  addHint("Age", state.characterQuestions.age, state.characterQuestions.autoAge);
+  addHint("Childhood", state.characterQuestions.childhood, state.characterQuestions.autoChildhood);
+  addHint("Adolescence", state.characterQuestions.adolescence, state.characterQuestions.autoAdolescence);
+  addHint("Brief description", state.characterQuestions.description, state.characterQuestions.autoDescription);
+
   return makePrompt(`
 Create a ${state.protagonist.gender} ${state.protagonist.race} protagonist
 for a fantasy adventure set in the world of ${state.world.name}.
 
 ${state.world.description}
+
+${hints.length > 0 ? `Additional guidance about the protagonist:\n${hints.join("\n")}` : ""}
 
 Return the character description as a JSON object. Include a short biography (100 words maximum).
 `);

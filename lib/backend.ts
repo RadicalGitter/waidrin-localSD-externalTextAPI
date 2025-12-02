@@ -34,6 +34,28 @@ export interface DefaultBackendSettings {
 export class DefaultBackend implements Backend {
   controller = new AbortController();
 
+  private buildJsonSchema(schema: z.ZodTypeAny): { schema: Record<string, unknown>; wrapped: boolean } {
+    const jsonSchema = z.toJSONSchema(schema);
+
+    // OpenAI's json_schema response_format requires the top-level to be an object.
+    // Wrap primitives/enums/arrays inside an object with a "result" property.
+    if (jsonSchema.type !== "object") {
+      return {
+        wrapped: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            result: jsonSchema,
+          },
+          required: ["result"],
+        },
+      };
+    }
+
+    return { schema: jsonSchema as Record<string, unknown>, wrapped: false };
+  }
+
   // Can be overridden by subclasses to provide custom settings.
   getSettings(): DefaultBackendSettings {
     return getState();
@@ -148,6 +170,7 @@ export class DefaultBackend implements Backend {
     schema: Schema,
     onToken?: TokenCallback,
   ): Promise<Type> {
+    const { schema: jsonSchema, wrapped } = this.buildJsonSchema(schema);
     const response = await this.getResponse(
       prompt,
       {
@@ -157,14 +180,16 @@ export class DefaultBackend implements Backend {
           json_schema: {
             name: "schema",
             strict: true,
-            schema: z.toJSONSchema(schema),
+            schema: jsonSchema,
           },
         },
       },
       onToken,
     );
 
-    return schema.parse(JSON.parse(response)) as Type;
+    const parsed = JSON.parse(response);
+    const data = wrapped ? parsed?.result : parsed;
+    return schema.parse(data) as Type;
   }
 
   abort(): void {

@@ -12,9 +12,11 @@ import * as schemas from "./schemas";
 
 export type View = z.infer<typeof schemas.View>;
 export type World = z.infer<typeof schemas.World>;
+export type WorldQuestions = z.infer<typeof schemas.WorldQuestions>;
 export type Gender = z.infer<typeof schemas.Gender>;
 export type Race = z.infer<typeof schemas.Race>;
 export type Character = z.infer<typeof schemas.Character>;
+export type CharacterQuestions = z.infer<typeof schemas.CharacterQuestions>;
 export type LocationType = z.infer<typeof schemas.LocationType>;
 export type Location = z.infer<typeof schemas.Location>;
 export type SexualContentLevel = z.infer<typeof schemas.SexualContentLevel>;
@@ -39,6 +41,22 @@ export const initialState: State = schemas.State.parse({
   logParams: false,
   logResponses: false,
   view: "welcome",
+  worldQuestions: {
+    worldType: "",
+    autoWorldType: true,
+    suggestions: [],
+    selectedSuggestionIndex: -1,
+  },
+  characterQuestions: {
+    age: "",
+    autoAge: true,
+    childhood: "",
+    autoChildhood: true,
+    adolescence: "",
+    autoAdolescence: true,
+    description: "",
+    autoDescription: true,
+  },
   world: {
     name: "[name]",
     description: "[description]",
@@ -145,6 +163,47 @@ export const useStateStore = create<StoredState>()(
         delete persistedState.setAsync;
 
         return persistedState;
+      },
+      version: 3,
+      migrate: (persistedState, version) => {
+        const migrated = { ...persistedState } as Partial<StoredState>;
+
+        // v1: Clear legacy sampling params (e.g., temperature) that some models reject.
+        if (version === 0 || version === undefined) {
+          migrated.generationParams = {};
+          migrated.narrationParams = {};
+        }
+
+        // v2: Add new question fields with defaults if missing.
+        if (!("worldQuestions" in migrated) || !migrated.worldQuestions) {
+          migrated.worldQuestions = {
+            worldType: "",
+            autoWorldType: true,
+            suggestions: [],
+            selectedSuggestionIndex: -1,
+          };
+        }
+
+        if (!("characterQuestions" in migrated) || !migrated.characterQuestions) {
+          migrated.characterQuestions = {
+            age: "",
+            autoAge: true,
+            childhood: "",
+            autoChildhood: true,
+            adolescence: "",
+            autoAdolescence: true,
+            description: "",
+            autoDescription: true,
+          };
+        }
+
+        // v3: Ensure new suggestion fields exist.
+        if (migrated.worldQuestions) {
+          migrated.worldQuestions.suggestions ??= [];
+          migrated.worldQuestions.selectedSuggestionIndex ??= -1;
+        }
+
+        return migrated as StoredState;
       },
     },
   ),

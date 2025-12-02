@@ -18,6 +18,8 @@ import Chat from "@/views/Chat";
 import ConnectionSetup from "@/views/ConnectionSetup";
 import GenreSelect from "@/views/GenreSelect";
 import ScenarioSetup from "@/views/ScenarioSetup";
+import WorldQuestions from "@/views/WorldQuestions";
+import CharacterQuestions from "@/views/CharacterQuestions";
 import Welcome from "@/views/Welcome";
 import { Context } from "./plugins";
 import type { Manifest } from "./plugins/route";
@@ -174,6 +176,8 @@ export default function Home() {
           {view === "connection" && <ConnectionSetup onNext={nextView} onBack={back} />}
           {view === "genre" && <GenreSelect onNext={nextView} onBack={back} />}
           {view === "character" && <CharacterSelect onNext={nextView} onBack={back} />}
+          {view === "world_questions" && <WorldQuestions onNext={nextView} onBack={back} />}
+          {view === "character_questions" && <CharacterQuestions onNext={nextView} onBack={back} />}
           {view === "scenario" && <ScenarioSetup onNext={nextView} onBack={back} />}
           {view === "chat" && <Chat />}
 
