@@ -46,6 +46,7 @@ export default function WorldQuestions({ onNext, onBack }: { onNext?: () => void
   const requestSuggestions = async () => {
     setLoading(true);
     setError(null);
+    const start = performance.now();
     try {
       const promptText = `
 Provide 3 one-sentence world pitches for a fantasy RPG. Each should be 10-30 words.
@@ -62,12 +63,13 @@ Return a JSON array of 3 strings.
 
       setState((state) => {
         state.worldQuestions.suggestions = suggestions;
-        state.worldQuestions.selectedSuggestionIndex = -1;
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message || "Failed to get suggestions");
     } finally {
+      const elapsedMs = performance.now() - start;
+      console.log(`[WorldQuestions] Suggest call took ${elapsedMs.toFixed(0)} ms`);
       setLoading(false);
     }
   };
