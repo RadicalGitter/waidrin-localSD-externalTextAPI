@@ -43,18 +43,20 @@ export const initialState: State = schemas.State.parse({
   view: "welcome",
   worldQuestions: {
     worldType: "",
-    autoWorldType: true,
+    autoWorldType: false,
     suggestions: [],
   },
   characterQuestions: {
+    name: "",
+    autoName: false,
     age: "",
-    autoAge: true,
+    autoAge: false,
     childhood: "",
-    autoChildhood: true,
+    autoChildhood: false,
     adolescence: "",
-    autoAdolescence: true,
+    autoAdolescence: false,
     description: "",
-    autoDescription: true,
+    autoDescription: false,
   },
   world: {
     name: "[name]",
@@ -163,7 +165,7 @@ export const useStateStore = create<StoredState>()(
 
         return persistedState;
       },
-      version: 4,
+      version: 6,
       migrate: (persistedState, version) => {
         const migrated = { ...persistedState } as Partial<StoredState>;
 
@@ -204,6 +206,36 @@ export const useStateStore = create<StoredState>()(
         // v4: Drop selectedSuggestionIndex; clicking a suggestion copies it directly.
         if (migrated.worldQuestions && "selectedSuggestionIndex" in migrated.worldQuestions) {
           delete (migrated.worldQuestions as Record<string, unknown>).selectedSuggestionIndex;
+        }
+
+        // v5: Default "Let LLM decide" toggles to off by default.
+        if (migrated.worldQuestions) {
+          migrated.worldQuestions.autoWorldType ??= false;
+        }
+        if (migrated.characterQuestions) {
+          migrated.characterQuestions.autoAge ??= false;
+          migrated.characterQuestions.autoChildhood ??= false;
+          migrated.characterQuestions.autoAdolescence ??= false;
+          migrated.characterQuestions.autoDescription ??= false;
+        }
+
+        // v6: Add character name fields.
+        if (!("characterQuestions" in migrated) || !migrated.characterQuestions) {
+          migrated.characterQuestions = {
+            name: "",
+            autoName: false,
+            age: "",
+            autoAge: false,
+            childhood: "",
+            autoChildhood: false,
+            adolescence: "",
+            autoAdolescence: false,
+            description: "",
+            autoDescription: false,
+          };
+        } else {
+          migrated.characterQuestions.name ??= "";
+          migrated.characterQuestions.autoName ??= false;
         }
 
         return migrated as StoredState;

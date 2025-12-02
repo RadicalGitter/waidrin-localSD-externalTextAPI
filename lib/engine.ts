@@ -131,16 +131,20 @@ export async function next(
       } else if (state.view === "genre") {
         state.view = "character";
       } else if (state.view === "character") {
-        // Collect world questions before generating the world.
+        // Collect character questions first.
+        state.view = "character_questions";
+      } else if (state.view === "character_questions") {
+        // Then collect world questions; actual generation happens after both steps.
         state.view = "world_questions";
       } else if (state.view === "world_questions") {
         step = ["Generating world", "This typically takes between 10 and 30 seconds"];
         state.world = await backend.getObject(generateWorldPrompt(state), schemas.World, onToken);
 
-        state.view = "character_questions";
-      } else if (state.view === "character_questions") {
         step = ["Generating protagonist", "This typically takes between 10 and 30 seconds"];
         state.protagonist = await backend.getObject(generateProtagonistPrompt(state), RawCharacter, onToken);
+        if (!state.characterQuestions.autoName && state.characterQuestions.name.trim()) {
+          state.protagonist.name = state.characterQuestions.name.trim();
+        }
         state.protagonist.locationIndex = 0;
 
         state.view = "scenario";
@@ -272,12 +276,12 @@ export function back(): void {
       state.view = "connection";
     } else if (state.view === "character") {
       state.view = "genre";
-    } else if (state.view === "world_questions") {
-      state.view = "character";
     } else if (state.view === "character_questions") {
-      state.view = "world_questions";
-    } else if (state.view === "scenario") {
+      state.view = "character";
+    } else if (state.view === "world_questions") {
       state.view = "character_questions";
+    } else if (state.view === "scenario") {
+      state.view = "world_questions";
     } else if (state.view === "chat") {
       // Chat states cannot be unambiguously reversed.
     } else {

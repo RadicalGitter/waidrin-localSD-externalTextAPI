@@ -50,6 +50,8 @@ export const Character = z.object({
 });
 
 export const CharacterQuestions = z.object({
+  name: z.string().trim().max(100),
+  autoName: z.boolean(),
   age: z.string().trim().max(50),
   autoAge: z.boolean(),
   childhood: z.string().trim().max(1000),

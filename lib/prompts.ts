@@ -52,10 +52,37 @@ export function generateProtagonistPrompt(state: State): Prompt {
     }
   };
 
+  addHint("Name", state.characterQuestions.name, state.characterQuestions.autoName);
   addHint("Age", state.characterQuestions.age, state.characterQuestions.autoAge);
   addHint("Childhood", state.characterQuestions.childhood, state.characterQuestions.autoChildhood);
   addHint("Adolescence", state.characterQuestions.adolescence, state.characterQuestions.autoAdolescence);
   addHint("Brief description", state.characterQuestions.description, state.characterQuestions.autoDescription);
+
+  const providedDetails: string[] = [];
+  if (!state.characterQuestions.autoName && state.characterQuestions.name.trim()) {
+    providedDetails.push(`Name: ${state.characterQuestions.name.trim()}`);
+  }
+  if (!state.characterQuestions.autoAge && state.characterQuestions.age.trim()) {
+    providedDetails.push(`Age: ${state.characterQuestions.age.trim()}`);
+  }
+  if (!state.characterQuestions.autoChildhood && state.characterQuestions.childhood.trim()) {
+    providedDetails.push(`Childhood: ${state.characterQuestions.childhood.trim()}`);
+  }
+  if (!state.characterQuestions.autoAdolescence && state.characterQuestions.adolescence.trim()) {
+    providedDetails.push(`Adolescence: ${state.characterQuestions.adolescence.trim()}`);
+  }
+  if (!state.characterQuestions.autoDescription && state.characterQuestions.description.trim()) {
+    providedDetails.push(`Description: ${state.characterQuestions.description.trim()}`);
+  }
+
+  const detailsInstruction =
+    providedDetails.length > 0
+      ? `
+Use these provided details verbatim and include all of them in the biography. Do not overwrite or omit them:
+${providedDetails.join("\n")}
+You may add connective prose, but do not contradict or change the supplied wording.
+`
+      : "";
 
   return makePrompt(`
 Create a ${state.protagonist.gender} ${state.protagonist.race} protagonist
@@ -64,6 +91,7 @@ for a fantasy adventure set in the world of ${state.world.name}.
 ${state.world.description}
 
 ${hints.length > 0 ? `Additional guidance about the protagonist:\n${hints.join("\n")}` : ""}
+${detailsInstruction}
 
 Return the character description as a JSON object. Include a short biography (100 words maximum).
 `);

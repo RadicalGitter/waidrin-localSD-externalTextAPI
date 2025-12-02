@@ -81,6 +81,9 @@ Return a JSON array of 3 strings.
           <Flex justify="between" align="center" mb="2">
             <Text size="6">World type</Text>
             <Flex align="center" gap="2">
+              <Button variant="outline" size="2" disabled={loading} onClick={requestSuggestions}>
+                {loading ? "Suggesting..." : "Suggest"}
+              </Button>
               <Checkbox
                 checked={worldQuestions.autoWorldType}
                 onCheckedChange={(checked) => toggleAuto(checked === true)}
@@ -101,16 +104,13 @@ Return a JSON array of 3 strings.
         </Label.Root>
       </Box>
 
-      <Box mb="3">
-        <Button variant="outline" disabled={loading} onClick={requestSuggestions}>
-          {loading ? "Requesting suggestions..." : "Suggest 3 options"}
-        </Button>
-        {error && (
-          <Text color="red" size="3" ml="3">
+      {error && (
+        <Box mb="3">
+          <Text color="red" size="3">
             {error}
           </Text>
-        )}
-      </Box>
+        </Box>
+      )}
 
       {worldQuestions.suggestions.length > 0 && (
         <>
