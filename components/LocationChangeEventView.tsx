@@ -5,16 +5,36 @@ import { Flex, Heading, Text } from "@radix-ui/themes";
 import { useShallow } from "zustand/shallow";
 import { type LocationChangeEvent, useStateStore } from "@/lib/state";
 
+const SD_PLUGIN_NAME = "Stable Diffusion (ComfyUI)";
+
 export default function LocationChangeEventView({ event }: { event: LocationChangeEvent }) {
-  const { location } = useStateStore(
-    useShallow((state) => ({
-      location: state.locations[event.locationIndex],
-    })),
+  const { location, pluginImage } = useStateStore(
+    useShallow((state) => {
+      const location = state.locations[event.locationIndex];
+      const sdPlugin = state.plugins.find((plugin) => plugin.name === SD_PLUGIN_NAME);
+      const locationImages =
+        sdPlugin && typeof sdPlugin.settings === "object" && sdPlugin.settings !== null
+          ? (sdPlugin.settings as { locationImages?: unknown }).locationImages
+          : undefined;
+
+      const typedImages =
+        locationImages && typeof locationImages === "object"
+          ? (locationImages as Record<string, { url?: string }>)
+          : undefined;
+
+      return {
+        location,
+        pluginImage: location && typedImages ? typedImages[location.name] : undefined,
+      };
+    }),
   );
+
+  const imageSrc = pluginImage?.url || `/images/${location.type}.png`;
+  const imageAlt = pluginImage ? location.name : location.type;
 
   return (
     <Flex direction="column" width="100%">
-      <img src={`/images/${location.type}.png`} alt={location.type} />
+      <img src={imageSrc} alt={imageAlt} style={{ width: "100%", height: "auto", display: "block" }} />
 
       <Flex className="bg-(--orange-2)" direction="column" p="6">
         <Heading className="lowercase" size="7" color="orange" align="center" mb="5">

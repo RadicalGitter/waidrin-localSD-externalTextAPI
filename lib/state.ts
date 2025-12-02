@@ -32,14 +32,8 @@ export const initialState: State = schemas.State.parse({
   model: "",
   contextLength: 16384,
   inputLength: 16384,
-  generationParams: {
-    temperature: 0.5,
-  },
-  narrationParams: {
-    temperature: 0.6,
-    min_p: 0.03,
-    dry_multiplier: 0.8,
-  },
+  generationParams: {},
+  narrationParams: {},
   updateInterval: 200,
   logPrompts: false,
   logParams: false,

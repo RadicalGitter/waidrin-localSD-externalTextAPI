@@ -62,10 +62,6 @@ export class DefaultBackend implements Backend {
           ],
           // These are hardcoded because the required number depends on
           // what is being prompted for, which is also hardcoded.
-          max_tokens: 4096,
-          // Both variants need to be provided, as newer OpenAI models
-          // don't support max_tokens, while some inference engines don't
-          // support max_completion_tokens.
           max_completion_tokens: 4096,
           ...params,
         },
