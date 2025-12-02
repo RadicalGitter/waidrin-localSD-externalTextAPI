@@ -26,7 +26,6 @@ export default function WorldQuestions({ onNext, onBack }: { onNext?: () => void
   const setWorldType = (value: string) =>
     setState((state) => {
       state.worldQuestions.worldType = value;
-      state.worldQuestions.selectedSuggestionIndex = -1;
     });
 
   const toggleAuto = (auto: boolean) =>
@@ -34,28 +33,14 @@ export default function WorldQuestions({ onNext, onBack }: { onNext?: () => void
       state.worldQuestions.autoWorldType = auto;
       if (auto) {
         state.worldQuestions.worldType = "";
-        state.worldQuestions.selectedSuggestionIndex = -1;
       }
     });
 
-  const updateSuggestion = (index: number, value: string) =>
+  const copySuggestion = (index: number) =>
     setState((state) => {
-      state.worldQuestions.suggestions[index] = value;
-      if (state.worldQuestions.selectedSuggestionIndex === index) {
-        state.worldQuestions.worldType = value;
-      }
-    });
-
-  const selectSuggestion = (index: number, use: boolean) =>
-    setState((state) => {
-      if (use) {
-        state.worldQuestions.selectedSuggestionIndex = index;
-        state.worldQuestions.autoWorldType = false;
-        state.worldQuestions.worldType = state.worldQuestions.suggestions[index] ?? "";
-      } else if (state.worldQuestions.selectedSuggestionIndex === index) {
-        state.worldQuestions.selectedSuggestionIndex = -1;
-        state.worldQuestions.worldType = "";
-      }
+      const value = state.worldQuestions.suggestions[index] ?? "";
+      state.worldQuestions.autoWorldType = false;
+      state.worldQuestions.worldType = value;
     });
 
   const requestSuggestions = async () => {
@@ -129,32 +114,16 @@ Return a JSON array of 3 strings.
         <>
           <Separator my="4" />
           <Text size="4" weight="bold" mb="3">
-            Suggestions
+            Suggestions (click to copy)
           </Text>
-          <Flex direction="column" gap="4">
+          <Flex direction="column" gap="3">
             {worldQuestions.suggestions.map((suggestion, index) => {
-              const checked = worldQuestions.selectedSuggestionIndex === index;
               return (
-                <Box key={index}>
-                  <Flex justify="between" align="center" gap="3" mb="2">
-                    <Text size="4">Option {index + 1}</Text>
-                    <Flex align="center" gap="2">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(state) => selectSuggestion(index, state === true)}
-                        id={`use-suggestion-${index}`}
-                      />
-                      <Text as="label" htmlFor={`use-suggestion-${index}`} size="3" color="gray">
-                        Use this one
-                      </Text>
-                    </Flex>
-                  </Flex>
-                  <TextField.Root
-                    value={suggestion}
-                    onChange={(event) => updateSuggestion(index, event.target.value)}
-                    size="3"
-                  />
-                </Box>
+                <Button key={index} size="3" color="purple" variant="soft" onClick={() => copySuggestion(index)}>
+                  <Text color="gray" highContrast>
+                    {suggestion || `Option ${index + 1}`}
+                  </Text>
+                </Button>
               );
             })}
           </Flex>

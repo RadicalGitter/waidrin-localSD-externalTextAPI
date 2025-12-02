@@ -35,7 +35,6 @@ export const WorldQuestions = z.object({
   worldType: z.string().trim().max(200),
   autoWorldType: z.boolean(),
   suggestions: z.array(z.string().trim().max(200)),
-  selectedSuggestionIndex: z.int(),
 });
 
 export const Gender = z.enum(["male", "female"]);

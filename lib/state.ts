@@ -45,7 +45,6 @@ export const initialState: State = schemas.State.parse({
     worldType: "",
     autoWorldType: true,
     suggestions: [],
-    selectedSuggestionIndex: -1,
   },
   characterQuestions: {
     age: "",
@@ -164,7 +163,7 @@ export const useStateStore = create<StoredState>()(
 
         return persistedState;
       },
-      version: 3,
+      version: 4,
       migrate: (persistedState, version) => {
         const migrated = { ...persistedState } as Partial<StoredState>;
 
@@ -200,7 +199,11 @@ export const useStateStore = create<StoredState>()(
         // v3: Ensure new suggestion fields exist.
         if (migrated.worldQuestions) {
           migrated.worldQuestions.suggestions ??= [];
-          migrated.worldQuestions.selectedSuggestionIndex ??= -1;
+        }
+
+        // v4: Drop selectedSuggestionIndex; clicking a suggestion copies it directly.
+        if (migrated.worldQuestions && "selectedSuggestionIndex" in migrated.worldQuestions) {
+          delete (migrated.worldQuestions as Record<string, unknown>).selectedSuggestionIndex;
         }
 
         return migrated as StoredState;
