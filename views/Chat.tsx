@@ -75,6 +75,7 @@ export default function Chat() {
   );
 
   const eventsContainerRef = useRef<HTMLDivElement | null>(null);
+  const historyContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Scroll to the bottom of the events container when new content is added (classic layout only).
   //
@@ -89,6 +90,15 @@ export default function Chat() {
       });
     }
   }, [events, useNewLayout]);
+
+  // Smooth scroll to bottom for history bin in new layout.
+  useEffect(() => {
+    if (!useNewLayout) return;
+    const node = historyContainerRef.current;
+    if (node) {
+      node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+    }
+  }, [historyEvents, useNewLayout]);
 
   // Forward the state machine once after transitioning to the chat view
   // to generate initial narration and actions.
@@ -216,7 +226,16 @@ export default function Chat() {
               marginRight: "1.5rem",
             }}
           >
-            <ScrollArea type="auto" className="flex-1 min-h-0">
+            <div
+              ref={historyContainerRef}
+              style={{
+                overflowY: "auto",
+                flex: 1,
+                minHeight: 0,
+                scrollbarWidth: "none",
+              }}
+              className="no-scrollbar"
+            >
               <Flex direction="column" gap="2" px="2">
                 {historyEvents.length === 0 && <Text color="gray">No history yet.</Text>}
                 {historyEvents.map((event, idx) => (
@@ -226,7 +245,7 @@ export default function Chat() {
                   </Box>
                 ))}
               </Flex>
-            </ScrollArea>
+            </div>
           </Flex>
 
           <Flex direction="column" style={{ flex: "0.95 1 0", minWidth: 0, gap: "0.75rem", paddingRight: 0 }}>

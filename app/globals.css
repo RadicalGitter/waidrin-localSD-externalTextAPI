@@ -4,3 +4,11 @@
   --default-font-family: var(--font-grenze) !important;
   --heading-font-family: var(--font-cinzel-decorative) !important;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
