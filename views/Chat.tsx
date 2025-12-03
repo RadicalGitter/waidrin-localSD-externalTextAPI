@@ -76,6 +76,7 @@ export default function Chat() {
 
   const eventsContainerRef = useRef<HTMLDivElement | null>(null);
   const historyContainerRef = useRef<HTMLDivElement | null>(null);
+  const charactersContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Scroll to the bottom of the events container when new content is added (classic layout only).
   //
@@ -99,6 +100,15 @@ export default function Chat() {
       node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
     }
   }, [historyEvents, useNewLayout]);
+
+  // Smooth scroll to bottom for characters bin in new layout.
+  useEffect(() => {
+    if (!useNewLayout) return;
+    const node = charactersContainerRef.current;
+    if (node) {
+      node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+    }
+  }, [introEvents, useNewLayout]);
 
   // Forward the state machine once after transitioning to the chat view
   // to generate initial narration and actions.
@@ -133,7 +143,7 @@ export default function Chat() {
             </Flex>
           </ScrollArea>
 
-          {actions.length > 0 && !errorMessage && (
+          {!errorMessage && (
             <ActionChoice
               onAction={(action) => {
                 setLastAction(action);
@@ -198,18 +208,21 @@ export default function Chat() {
               p="3"
               style={{ flex: "1 1 0", minHeight: 0, display: "flex", flexDirection: "column" }}
             >
-              <ScrollArea type="auto" className="flex-1 min-h-0">
+              <div
+                ref={charactersContainerRef}
+                style={{ overflowY: "auto", flex: 1, minHeight: 0, scrollbarWidth: "none" }}
+                className="no-scrollbar"
+              >
                 <Flex direction="column" gap="3">
                   {introEvents.length === 0 && <Text color="gray">No characters introduced yet.</Text>}
                   {introEvents.map((event, idx) => (
-                    <CharacterIntroductionEventView
-                      // biome-ignore lint/suspicious/noArrayIndexKey: stable slice of events.
-                      key={idx}
-                      event={event as any}
-                    />
+                    <Box key={idx}>
+                      <CharacterIntroductionEventView event={event as any} />
+                      <Box style={{ height: "7em" }} />
+                    </Box>
                   ))}
                 </Flex>
-              </ScrollArea>
+              </div>
             </Box>
           </Flex>
 
@@ -277,7 +290,7 @@ export default function Chat() {
               p="3"
               style={{ flex: "1 1 0", minHeight: 0, display: "flex", flexDirection: "column" }}
             >
-              {actions.length > 0 && !errorMessage ? (
+              {!errorMessage ? (
                 <ActionChoice
                   textSize={4}
                   onAction={(action) => {
