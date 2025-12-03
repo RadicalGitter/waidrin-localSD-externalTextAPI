@@ -8,7 +8,7 @@ import { useShallow } from "zustand/shallow";
 import { useStateStore } from "@/lib/state";
 import CharacterView from "./CharacterView";
 
-export default function ActionChoice({ onAction }: { onAction: (action: string) => void }) {
+export default function ActionChoice({ onAction, textSize = 5 }: { onAction: (action: string) => void; textSize?: 3 | 4 | 5 }) {
   const [customAction, setCustomAction] = useState("");
 
   const { protagonist, actions } = useStateStore(
@@ -41,7 +41,7 @@ export default function ActionChoice({ onAction }: { onAction: (action: string) 
         <Button
           // biome-ignore lint/suspicious/noArrayIndexKey: Actions are immutable, so this is valid.
           key={index}
-          className="h-auto justify-start text-start py-[0.5em]"
+          className="h-auto justify-start text-start py-[0.5em] whitespace-normal break-words"
           variant="surface"
           radius="large"
           color="sky"
@@ -51,7 +51,7 @@ export default function ActionChoice({ onAction }: { onAction: (action: string) 
             setCustomAction("");
           }}
         >
-          <Text size="5">{action}</Text>
+          <Text size={textSize}>{action}</Text>
         </Button>
       ))}
 

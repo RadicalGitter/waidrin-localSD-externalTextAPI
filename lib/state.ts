@@ -40,6 +40,7 @@ export const initialState: State = schemas.State.parse({
   logPrompts: false,
   logParams: false,
   logResponses: false,
+  useNewLayout: false,
   view: "welcome",
   worldQuestions: {
     worldType: "",
@@ -165,7 +166,7 @@ export const useStateStore = create<StoredState>()(
 
         return persistedState;
       },
-      version: 6,
+      version: 7,
       migrate: (persistedState, version) => {
         const migrated = { ...persistedState } as Partial<StoredState>;
 
@@ -236,6 +237,11 @@ export const useStateStore = create<StoredState>()(
         } else {
           migrated.characterQuestions.name ??= "";
           migrated.characterQuestions.autoName ??= false;
+        }
+
+        // v7: add layout toggle default false.
+        if (!("useNewLayout" in migrated)) {
+          migrated.useNewLayout = false;
         }
 
         return migrated as StoredState;

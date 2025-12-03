@@ -1,11 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025  Philipp Emanuel Weidmann <pew@worldwidemann.com>
 
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025
+
+"use client";
+
 import { DropdownMenu, IconButton, Text } from "@radix-ui/themes";
 import { GiElfHelmet } from "react-icons/gi";
+import { useShallow } from "zustand/shallow";
 import { reset } from "@/lib/engine";
+import { useStateStore } from "@/lib/state";
 
 export default function MainMenu() {
+  const { useNewLayout, setState } = useStateStore(
+    useShallow((state) => ({
+      useNewLayout: state.useNewLayout,
+      setState: state.set,
+    })),
+  );
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
@@ -19,6 +33,16 @@ export default function MainMenu() {
           onClick={() => window.open("https://github.com/p-e-w/waidrin/issues", "_blank", "noopener,noreferrer")}
         >
           <Text size="5">Report an issue...</Text>
+        </DropdownMenu.Item>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          onClick={() =>
+            setState((state) => {
+              state.useNewLayout = !state.useNewLayout;
+            })
+          }
+        >
+          <Text size="5">{useNewLayout ? "Use classic layout" : "Use bin layout"}</Text>
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item color="red" onClick={reset}>

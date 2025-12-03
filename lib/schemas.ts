@@ -117,6 +117,7 @@ export const State = z.object({
   logPrompts: z.boolean(),
   logParams: z.boolean(),
   logResponses: z.boolean(),
+  useNewLayout: z.boolean(),
   view: View,
   worldQuestions: WorldQuestions,
   characterQuestions: CharacterQuestions,
