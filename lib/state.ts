@@ -32,6 +32,7 @@ export const initialState: State = schemas.State.parse({
   apiUrl: "http://localhost:8080/v1/",
   apiKey: "",
   model: "",
+  openaiMode: false,
   contextLength: 16384,
   inputLength: 16384,
   generationParams: {},
@@ -166,7 +167,7 @@ export const useStateStore = create<StoredState>()(
 
         return persistedState;
       },
-      version: 7,
+      version: 8,
       migrate: (persistedState, version) => {
         const migrated = { ...persistedState } as Partial<StoredState>;
 
@@ -242,6 +243,11 @@ export const useStateStore = create<StoredState>()(
         // v7: add layout toggle default false.
         if (!("useNewLayout" in migrated)) {
           migrated.useNewLayout = false;
+        }
+
+        // v8: add openaiMode toggle default false.
+        if (!("openaiMode" in migrated)) {
+          migrated.openaiMode = false;
         }
 
         return migrated as StoredState;

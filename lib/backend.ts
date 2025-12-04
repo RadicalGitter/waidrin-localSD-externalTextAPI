@@ -74,19 +74,25 @@ export class DefaultBackend implements Backend {
 
   async *getResponseStream(prompt: Prompt, params: Record<string, unknown> = {}): AsyncGenerator<string> {
     try {
+      const state = getState();
+      const payload: Record<string, unknown> = {
+        stream: true,
+        model: this.getSettings().model,
+        messages: [
+          { role: "system", content: prompt.system },
+          { role: "user", content: prompt.user },
+        ],
+        // These are hardcoded because the required number depends on
+        // what is being prompted for, which is also hardcoded.
+        max_completion_tokens: 4096,
+        ...params,
+      };
+      if (state.openaiMode) {
+        payload.max_tokens = 4096;
+      }
+
       const stream = await this.getClient().chat.completions.create(
-        {
-          stream: true,
-          model: this.getSettings().model,
-          messages: [
-            { role: "system", content: prompt.system },
-            { role: "user", content: prompt.user },
-          ],
-          // These are hardcoded because the required number depends on
-          // what is being prompted for, which is also hardcoded.
-          max_completion_tokens: 4096,
-          ...params,
-        },
+        payload,
         { signal: this.controller.signal },
       );
 

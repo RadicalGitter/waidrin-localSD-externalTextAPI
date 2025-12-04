@@ -109,6 +109,7 @@ export const State = z.object({
   apiUrl: z.url(),
   apiKey: z.string().trim(),
   model: z.string().trim(),
+  openaiMode: z.boolean(),
   contextLength: z.int(),
   inputLength: z.int(),
   generationParams: RequestParams,

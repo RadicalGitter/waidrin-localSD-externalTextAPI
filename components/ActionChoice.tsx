@@ -2,7 +2,7 @@
 // Copyright (C) 2025  Philipp Emanuel Weidmann <pew@worldwidemann.com>
 
 import { Box, Button, Flex, HoverCard, IconButton, Link, Text, TextField } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GiFairyWand } from "react-icons/gi";
 import { useShallow } from "zustand/shallow";
 import { useStateStore } from "@/lib/state";
